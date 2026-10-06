@@ -24,6 +24,8 @@ npm start
 
 ## النشر على Cloudflare
 
+الرابط المنشور: [بصير — مساحة العمل](https://baseer.moath1777.workers.dev/overview).
+
 يستخدم المشروع Cloudflare Workers مع محوّل OpenNext لتشغيل صفحات Next.js الديناميكية، بما فيها بطاقات المؤشرات التي ينشئها المستخدم.
 
 ```bash
