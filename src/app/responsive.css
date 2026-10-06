@@ -1,0 +1,730 @@
+/* Responsive rules are layered after the desktop stylesheet below via specificity. */
+@media (min-width: 1600px) {
+  .app-shell .main-content {
+    padding: 38px 48px 0;
+  }
+  .app-shell .topbar,
+  .app-shell .scopebar {
+    padding-inline: 48px;
+  }
+  .app-shell .performance-feature {
+    min-height: 240px;
+  }
+  .app-shell .feature-score {
+    font-size: 66px;
+  }
+  .app-shell .feature-ring,
+  .app-shell .feature-ring > svg:first-child {
+    width: 170px;
+    height: 170px;
+  }
+  .app-shell .trend-chart {
+    height: 245px;
+  }
+  .app-shell .metric-strip {
+    padding-block: 26px;
+  }
+}
+@media (max-width: 1250px) {
+  .app-shell .sidebar {
+    width: 225px;
+    padding-inline: 13px;
+  }
+  .app-shell .app-body {
+    margin-inline-start: 225px;
+  }
+  .app-shell .brand {
+    gap: 10px;
+    padding-inline: 0;
+  }
+  .app-shell .brand img {
+    width: 66px;
+  }
+  .app-shell .brand strong {
+    font-size: 34px;
+  }
+  .app-shell .brand span {
+    font-size: 10px;
+  }
+  .app-shell .main-content {
+    padding: 25px 23px 0;
+  }
+  .app-shell .topbar,
+  .app-shell .scopebar {
+    padding-inline: 23px;
+  }
+  .app-shell .header-search span {
+    display: none;
+  }
+  .app-shell .topbar-actions {
+    gap: 12px;
+  }
+  .app-shell .metric {
+    padding-inline: 15px;
+    gap: 10px;
+  }
+  .app-shell .metric-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .app-shell .metric span {
+    font-size: 11px;
+  }
+  .app-shell .metric small {
+    font-size: 9px;
+  }
+  .app-shell .performance-feature {
+    padding: 24px;
+  }
+  .app-shell .feature-ring,
+  .app-shell .feature-ring > svg:first-child {
+    width: 115px;
+    height: 115px;
+  }
+  .app-shell .feature-ring {
+    margin-inline-start: 15px;
+  }
+  .app-shell .feature-score {
+    font-size: 48px;
+  }
+  .app-shell .chart-legend {
+    display: none;
+  }
+  .app-shell .strategy-layout {
+    grid-template-columns: 240px 1fr;
+  }
+  .app-shell .approval-summary {
+    gap: 25px;
+  }
+  .app-shell .approval-summary span {
+    font-size: 11px;
+  }
+  .app-shell .feature-footer {
+    font-size: 9px;
+  }
+  .app-shell .attention-list {
+    padding-inline: 16px;
+  }
+  .app-shell td,
+  .app-shell th {
+    padding-inline: 16px;
+  }
+}
+@media (max-width: 1020px) {
+  .app-shell .sidebar {
+    width: 205px;
+    padding-inline: 10px;
+  }
+  .app-shell .app-body {
+    margin-inline-start: 205px;
+  }
+  .app-shell .nav-item {
+    font-size: 12px;
+    gap: 9px;
+    padding-inline: 11px;
+  }
+  .app-shell .brand {
+    gap: 9px;
+  }
+  .app-shell .brand img {
+    width: 58px;
+  }
+  .app-shell .brand strong {
+    font-size: 32px;
+  }
+  .app-shell .brand span {
+    font-size: 9px;
+  }
+  .app-shell .topbar-actions {
+    gap: 6px;
+  }
+  .app-shell .profile {
+    padding-inline-start: 12px;
+  }
+  .app-shell .breadcrumb {
+    font-size: 11px;
+    gap: 10px;
+  }
+  .app-shell .profile select {
+    font-size: 11px;
+    max-width: 125px;
+  }
+  .app-shell .main-content {
+    padding-inline: 20px;
+  }
+  .app-shell .scope-controls {
+    gap: 10px;
+  }
+  .app-shell .scope-controls select {
+    max-width: 230px;
+    font-size: 11px;
+  }
+  .app-shell .overview-top {
+    gap: 16px;
+  }
+  .app-shell .feature-ring {
+    display: none;
+  }
+  .app-shell .feature-score {
+    font-size: 54px;
+  }
+  .app-shell .metric-strip {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+  }
+  .app-shell .metric {
+    padding: 17px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-shell .metric:nth-child(2) {
+    border-inline-end: 0;
+  }
+  .app-shell .metric:nth-child(3),
+  .app-shell .metric:nth-child(4) {
+    border-bottom: 0;
+  }
+  .app-shell .metric > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .app-shell .metric small {
+    grid-column: 1/-1;
+  }
+  .app-shell .metric strong {
+    font-size: 25px;
+  }
+  .app-shell .insight-grid {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .attention-list {
+    display: flex;
+    gap: 20px;
+    padding: 0 23px;
+  }
+  .app-shell .attention-item {
+    flex: 1;
+    border: 0;
+    align-items: flex-start;
+  }
+  .app-shell .attention-item > svg {
+    display: none;
+  }
+  .app-shell .attention-item strong {
+    font-size: 11px;
+  }
+  .app-shell .attention-symbol {
+    width: 25px;
+    height: 25px;
+  }
+  .app-shell .attention-symbol > svg {
+    width: 14px;
+  }
+  .app-shell .strategy-layout {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .strategy-context {
+    position: static;
+    padding: 20px 24px;
+  }
+  .app-shell .strategy-context h2 {
+    font-size: 22px;
+    margin: 5px 0;
+  }
+  .app-shell .strategy-years,
+  .app-shell .strategy-facts,
+  .app-shell .context-note {
+    display: none;
+  }
+  .app-shell .detail-grid {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .page-heading h1 {
+    font-size: 26px;
+  }
+  .app-shell .page-heading p {
+    font-size: 12px;
+  }
+  .app-shell .heading-actions .button {
+    font-size: 12px;
+  }
+  .app-shell .approval-row {
+    flex-wrap: wrap;
+  }
+  .app-shell .approval-value {
+    margin-inline-start: 68px;
+  }
+  .app-shell .approval-row > .button {
+    margin-inline-start: auto;
+  }
+  .app-shell .approval-description {
+    min-width: 60%;
+  }
+  .app-shell .setting-row {
+    align-items: flex-start;
+  }
+  .app-shell .measurement-grid {
+    gap: 15px;
+  }
+  .app-shell .measurement-card {
+    padding: 18px;
+  }
+  .app-shell .measurement-card h3 {
+    font-size: 15px;
+  }
+  .app-shell .measurement-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .app-shell .cycle-summary h2 {
+    font-size: 21px;
+  }
+}
+@media (max-width: 760px) {
+  .app-shell .sidebar {
+    transform: translateX(100%);
+    width: 248px;
+    padding: 25px 17px 18px;
+    transition: transform 0.2s;
+  }
+  .app-shell[dir="ltr"] .sidebar {
+    transform: translateX(-100%);
+  }
+  .app-shell .sidebar.is-open {
+    transform: translateX(0);
+  }
+  .app-shell .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: #153e3260;
+    border: 0;
+    z-index: 25;
+  }
+  .app-shell .app-body {
+    margin-inline-start: 0;
+  }
+  .app-shell .mobile-menu {
+    display: inline-flex;
+  }
+  .app-shell .topbar {
+    height: 67px;
+    padding-inline: 17px;
+  }
+  .app-shell .topbar-start {
+    gap: 8px;
+  }
+  .app-shell .breadcrumb {
+    font-size: 12px;
+  }
+  .app-shell .breadcrumb > span {
+    display: none;
+  }
+  .app-shell .profile {
+    padding-inline-start: 10px;
+    gap: 7px;
+  }
+  .app-shell .profile .avatar {
+    display: none;
+  }
+  .app-shell .profile select {
+    max-width: 125px;
+    font-size: 11px;
+  }
+  .app-shell .profile small {
+    font-size: 9px;
+  }
+  .app-shell .header-search {
+    padding: 7px;
+  }
+  .app-shell .notification-button {
+    display: none;
+  }
+  .app-shell .language-button {
+    padding: 5px;
+  }
+  .app-shell .scopebar {
+    padding: 8px 17px;
+    min-height: 52px;
+  }
+  .app-shell .scope-controls {
+    flex: 1;
+    justify-content: space-between;
+    gap: 7px;
+  }
+  .app-shell .scope-controls label {
+    gap: 5px;
+  }
+  .app-shell .scope-controls select {
+    font-size: 10px;
+    max-width: 180px;
+    padding-inline-end: 0;
+  }
+  .app-shell .scope-controls label:last-child select {
+    max-width: 110px;
+  }
+  .app-shell .scope-controls svg {
+    width: 13px;
+  }
+  .app-shell .sample-label {
+    display: none;
+  }
+  .app-shell .main-content {
+    padding: 25px 17px 0;
+  }
+  .app-shell .page-heading {
+    gap: 12px;
+    margin-bottom: 23px;
+    align-items: flex-start;
+  }
+  .app-shell .page-heading h1 {
+    font-size: 25px;
+  }
+  .app-shell .page-heading p {
+    font-size: 12px;
+    max-width: 330px;
+  }
+  .app-shell .eyebrow {
+    font-size: 10px;
+  }
+  .app-shell .heading-actions .button {
+    font-size: 11px;
+    padding: 8px 10px;
+    min-height: 36px;
+  }
+  .app-shell .heading-actions .button svg {
+    width: 14px;
+  }
+  .app-shell .overview-top {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .app-shell .performance-feature {
+    min-height: 210px;
+    padding: 24px;
+  }
+  .app-shell .feature-ring {
+    display: grid;
+    width: 135px;
+    height: 135px;
+  }
+  .app-shell .feature-ring > svg:first-child {
+    width: 135px;
+    height: 135px;
+  }
+  .app-shell .feature-score {
+    font-size: 56px;
+  }
+  .app-shell .feature-footer {
+    font-size: 10px;
+  }
+  .app-shell .cycle-summary {
+    padding: 20px 23px;
+  }
+  .app-shell .cycle-summary h2 {
+    font-size: 22px;
+  }
+  .app-shell .metric {
+    padding: 17px 14px;
+    gap: 8px;
+  }
+  .app-shell .metric > div:last-child {
+    display: block;
+  }
+  .app-shell .metric small {
+    font-size: 9px;
+  }
+  .app-shell .metric span {
+    font-size: 10px;
+  }
+  .app-shell .metric strong {
+    font-size: 28px;
+  }
+  .app-shell .metric-icon {
+    width: 31px;
+    height: 31px;
+  }
+  .app-shell .metric-icon svg {
+    width: 17px;
+  }
+  .app-shell .attention-list {
+    display: block;
+    padding-inline: 22px;
+  }
+  .app-shell .attention-item {
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-shell .attention-item strong {
+    font-size: 13px;
+  }
+  .app-shell .attention-item > svg {
+    display: block;
+  }
+  .app-shell .attention-symbol {
+    width: 34px;
+    height: 34px;
+  }
+  .app-shell .attention-symbol > svg {
+    width: 17px;
+  }
+  .app-shell .panel-heading {
+    padding: 20px 18px 15px;
+  }
+  .app-shell .panel-heading h2 {
+    font-size: 16px;
+  }
+  .app-shell .panel-heading p {
+    font-size: 11px;
+  }
+  .app-shell .page-footer {
+    font-size: 9px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .app-shell .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .app-shell .input-with-icon input {
+    width: 100%;
+  }
+  .app-shell .tabs {
+    gap: 17px;
+    overflow: auto;
+  }
+  .app-shell .tabs button {
+    font-size: 12px;
+  }
+  .app-shell .table-footer {
+    font-size: 10px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .app-shell .list-toolbar {
+    padding-inline: 17px;
+  }
+  .app-shell .measurement-grid {
+    grid-template-columns: 1fr;
+  }
+  .app-shell .measurement-card {
+    padding: 22px;
+  }
+  .app-shell .measurement-card h3 {
+    font-size: 17px;
+  }
+  .app-shell .measurement-bottom {
+    flex-direction: row;
+    align-items: center;
+  }
+  .app-shell .cycle-banner {
+    padding: 19px 17px;
+    gap: 13px;
+  }
+  .app-shell .cycle-banner-icon {
+    display: none;
+  }
+  .app-shell .cycle-banner h2 {
+    font-size: 16px;
+  }
+  .app-shell .cycle-banner p {
+    font-size: 11px;
+  }
+  .app-shell .cycle-banner-stat {
+    min-width: 70px;
+  }
+  .app-shell .approval-summary {
+    gap: 15px;
+    padding: 18px;
+    justify-content: space-between;
+  }
+  .app-shell .approval-summary > div {
+    flex-direction: column;
+    gap: 3px;
+    text-align: center;
+  }
+  .app-shell .approval-summary > div svg {
+    width: 18px;
+  }
+  .app-shell .approval-summary span {
+    font-size: 10px;
+  }
+  .app-shell .approval-summary strong {
+    font-size: 24px;
+  }
+  .app-shell .approval-row {
+    padding: 20px;
+    gap: 13px;
+  }
+  .app-shell .approval-description h3 {
+    font-size: 15px;
+  }
+  .app-shell .approval-file {
+    width: 40px;
+    height: 45px;
+  }
+  .app-shell .approval-value {
+    margin-inline-start: 53px;
+  }
+  .app-shell .approval-row > .button {
+    font-size: 11px;
+  }
+  .app-shell .detail-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+  }
+  .app-shell .detail-metrics > div {
+    padding: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .app-shell .detail-metrics > div:nth-child(even) {
+    border-inline-end: 0;
+  }
+  .app-shell .detail-metrics > div:nth-child(3),
+  .app-shell .detail-metrics > div:nth-child(4) {
+    border-bottom: 0;
+  }
+  .app-shell .detail-metrics > div > span:first-child {
+    font-size: 10px;
+  }
+  .app-shell .detail-metrics strong,
+  .app-shell .detail-metrics .score {
+    font-size: 25px;
+  }
+  .app-shell .detail-metrics strong.small {
+    font-size: 15px;
+  }
+  .app-shell .setting-row {
+    flex-direction: column;
+    gap: 15px;
+    padding: 22px;
+  }
+  .app-shell .setting-row p {
+    font-size: 12px;
+  }
+  .app-shell .brand {
+    gap: 15px;
+    padding-inline: 9px;
+  }
+  .app-shell .brand img {
+    width: 75px;
+  }
+  .app-shell .brand strong {
+    font-size: 39px;
+  }
+  .app-shell .brand span {
+    font-size: 11px;
+  }
+  .app-shell .nav-item {
+    font-size: 14px;
+    gap: 13px;
+  }
+  .dialog .dialog-heading {
+    padding: 20px;
+  }
+  .dialog .dialog-heading h2 {
+    font-size: 21px;
+  }
+  .dialog .dialog-body {
+    padding: 22px 20px;
+  }
+  .dialog .wizard-steps {
+    gap: 8px;
+    padding: 17px 20px;
+  }
+  .dialog .wizard-steps li {
+    justify-content: center;
+  }
+  .dialog .wizard-steps strong {
+    display: none;
+  }
+  .dialog .dialog-footer {
+    padding: 16px 20px;
+    gap: 8px;
+  }
+  .dialog .dialog-footer .button {
+    font-size: 11px;
+    padding: 9px 11px;
+  }
+  .dialog .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .dialog .review-values {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .dialog .review-values > div:last-child {
+    grid-column: 1/-1;
+  }
+  .dialog .review-flow {
+    font-size: 11px;
+  }
+  .dialog .review-flow span {
+    font-size: 10px;
+  }
+  .dialog .review-title h3 {
+    font-size: 17px;
+  }
+  .dialog .review-title {
+    align-items: flex-start;
+  }
+  .app-shell .strategy-context {
+    padding: 22px;
+  }
+  .app-shell .objective-card summary {
+    padding: 17px;
+    gap: 10px;
+  }
+  .app-shell .objective-card summary h3 {
+    font-size: 14px;
+  }
+  .app-shell .objective-card summary p {
+    font-size: 10px;
+  }
+  .app-shell .objective-children {
+    padding: 7px 17px;
+  }
+  .app-shell .tree-item {
+    gap: 8px;
+    font-size: 11px;
+  }
+  .app-shell .tree-item > .score {
+    font-size: 10px;
+  }
+  .app-shell .tree-item > svg:last-child {
+    display: none;
+  }
+  .app-shell .tree-connector {
+    width: 13px;
+  }
+  .app-shell .objective-index {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  .app-shell .segmented button {
+    font-size: 11px;
+  }
+  .app-shell .segmented button svg {
+    width: 14px;
+  }
+  .app-shell .skip-link {
+    inset-inline-start: 20px;
+  }
+  .app-shell .toast {
+    font-size: 12px;
+    width: max-content;
+  }
+  .app-shell .feature-ring {
+    margin-inline-start: 15px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.env*
+!.env.example
+.DS_Store
+artifacts/
+
+# PowerPoint deliverables and temporary presentation builds
+*.[pP][pP][tT][xX]
+.presentation-build/
+.codex-finalizer/
+deliverables/

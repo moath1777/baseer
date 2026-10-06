@@ -1,0 +1,296 @@
+/* Keep operational labels readable at every breakpoint. */
+html,
+body {
+  overflow-x: clip;
+}
+.app-shell [class$="-grid"] > *,
+.app-shell .overview-top > * {
+  min-width: 0;
+}
+.app-shell[dir="ltr"] .brand strong {
+  font-size: 31px;
+  letter-spacing: -0.6px;
+}
+.app-shell[dir="ltr"] .brand span {
+  white-space: normal;
+  font-size: 10px;
+}
+.app-shell .page-heading p {
+  font-size: 14px;
+  color: #73806f;
+}
+.app-shell .eyebrow {
+  font-size: 12px;
+  color: #77836d;
+}
+.app-shell .panel-heading h2 {
+  font-size: 18px;
+}
+.app-shell .panel-heading p {
+  font-size: 12px;
+  color: #7c8772;
+}
+.app-shell .nav-item {
+  font-size: 14px;
+}
+.app-shell .scope-controls select {
+  font-size: 12px;
+  color: #63705c;
+}
+.app-shell .scope-controls select option {
+  font-size: 14px;
+}
+.app-shell .profile small {
+  font-size: 11px;
+  color: #788470;
+}
+.app-shell .profile select {
+  font-size: 13px;
+}
+.app-shell .metric span {
+  font-size: 13px;
+  color: #737f6b;
+  white-space: normal;
+}
+.app-shell .metric small {
+  font-size: 11px;
+  color: #808c77;
+}
+.app-shell .feature-eyebrow,
+.app-shell .feature-content > p {
+  font-size: 14px;
+}
+.app-shell .feature-footer {
+  font-size: 12px;
+  color: #bdcdbb;
+}
+.app-shell .cycle-summary > p,
+.app-shell .cycle-progress-label {
+  font-size: 12px;
+  color: #7a856c;
+}
+.app-shell .cycle-summary > .text-link {
+  font-size: 13px;
+}
+.app-shell .text-link {
+  font-size: 13px;
+}
+.app-shell .attention-item strong {
+  font-size: 14px;
+}
+.app-shell .attention-item > div > span {
+  font-size: 12px;
+  color: #7d8870;
+}
+.app-shell .panel-bottom-link {
+  font-size: 13px;
+}
+.app-shell .chart-note {
+  font-size: 11px;
+  color: #7b856e;
+}
+.app-shell .chart-legend {
+  font-size: 11px;
+  color: #7b856e;
+}
+.app-shell th {
+  font-size: 12px;
+  color: #748068;
+}
+.app-shell td,
+.app-shell .kpi-name strong {
+  font-size: 14px;
+}
+.app-shell .kpi-name small {
+  font-size: 11px;
+  color: #808b73;
+}
+.app-shell .score {
+  font-size: 14px;
+}
+.app-shell .badge,
+.dialog .badge {
+  font-size: 12px;
+}
+.app-shell .status-approved,
+.dialog .status-approved {
+  color: #4f763e;
+}
+.app-shell .status-submitted,
+.dialog .status-submitted {
+  color: #8d742e;
+}
+.app-shell .status-returned,
+.dialog .status-returned {
+  color: #9c6140;
+}
+.app-shell .status-draft,
+.app-shell .status-missing,
+.dialog .status-draft {
+  color: #768065;
+}
+.app-shell .score-watch {
+  color: #8d742e;
+}
+.app-shell .score-neutral {
+  color: #77826c;
+}
+.app-shell .sidebar-label,
+.app-shell .sidebar-cycle small {
+  font-size: 12px;
+  color: #7b866f;
+}
+.app-shell .prototype-note small {
+  font-size: 11px;
+  color: #7b866f;
+}
+.app-shell .table-footer {
+  font-size: 12px;
+  color: #7d886f;
+}
+.app-shell .input-with-icon input,
+.app-shell .filter-row select {
+  font-size: 14px;
+}
+.app-shell .tree-item {
+  font-size: 14px;
+}
+.app-shell .objective-card summary p {
+  font-size: 12px;
+  color: #7e886e;
+}
+.app-shell .measurement-bottom > span {
+  font-size: 12px;
+  color: #7c886b;
+}
+.app-shell .measurement-card > p {
+  font-size: 13px;
+  color: #7a856b;
+}
+.app-shell .measurement-values span {
+  font-size: 13px;
+  color: #7a866c;
+}
+.app-shell .approval-summary span {
+  font-size: 13px;
+  color: #788468;
+}
+.app-shell .approval-description p,
+.app-shell .approval-value > span {
+  font-size: 12px;
+  color: #7d886c;
+}
+.app-shell .definition-list > div,
+.dialog .definition-list > div {
+  font-size: 14px;
+}
+.app-shell .definition-list dt,
+.dialog .definition-list dt {
+  color: #7b866c;
+}
+.app-shell .formula-panel > p {
+  font-size: 14px;
+  color: #7b866a;
+}
+.app-shell .setting-row p {
+  font-size: 14px;
+  color: #788569;
+}
+.dialog .field {
+  font-size: 14px;
+  color: #63764f;
+}
+.dialog .field-help {
+  font-size: 12px;
+  color: #7e8a6c;
+}
+.dialog .wizard-steps li > strong {
+  font-size: 12px;
+}
+.dialog .form-context p {
+  font-size: 13px;
+  color: #7a8866;
+}
+.dialog .review-values span {
+  font-size: 13px;
+  color: #7a8669;
+}
+.dialog .observation-box {
+  font-size: 14px;
+  color: #6e8159;
+}
+.app-shell .header-search {
+  font-size: 12px;
+}
+.app-shell .topbar-actions .header-search {
+  min-width: 32px;
+  min-height: 32px;
+}
+.app-shell .sample-label {
+  font-size: 11px;
+  color: #82734f;
+}
+.app-shell .sidebar {
+  overflow-y: auto;
+}
+@media (max-width: 760px) {
+  .app-shell .sidebar {
+    display: none;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .app-shell .sidebar.is-open {
+    display: flex;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .app-shell .profile select {
+    font-size: 12px;
+    max-width: 115px;
+  }
+  .app-shell .scope-controls select {
+    font-size: 11px;
+    max-width: 175px;
+  }
+  .app-shell .page-heading {
+    flex-wrap: wrap;
+  }
+  .app-shell .metric span {
+    font-size: 12px;
+  }
+  .app-shell .feature-footer {
+    font-size: 11px;
+  }
+  .app-shell .approval-summary span {
+    font-size: 11px;
+  }
+  .app-shell .tree-item {
+    font-size: 12px;
+  }
+  .app-shell .tree-item .score {
+    font-size: 12px;
+  }
+  .app-shell .approval-description {
+    min-width: calc(100% - 60px);
+  }
+  .app-shell .feature-ring,
+  .app-shell .feature-ring > svg:first-child {
+    width: 108px;
+    height: 108px;
+  }
+  .app-shell .feature-content {
+    min-width: 0;
+  }
+  .app-shell .feature-content > p {
+    font-size: 12px;
+  }
+  .app-shell .feature-score {
+    font-size: 48px;
+  }
+  .app-shell .review-title .badge {
+    font-size: 11px;
+  }
+  .dialog .dialog-footer {
+    flex-wrap: wrap;
+  }
+}
