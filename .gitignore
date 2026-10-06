@@ -12,3 +12,6 @@ artifacts/
 .presentation-build/
 .codex-finalizer/
 deliverables/
+.open-next/
+.wrangler/
+.dev.vars*

@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "preview:cloudflare": "opennextjs-cloudflare preview",
+    "deploy:cloudflare": "opennextjs-cloudflare deploy",
+    "upload:cloudflare": "opennextjs-cloudflare upload",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write src tests docs README.md ROADMAP.md package.json tsconfig.json next.config.ts",
@@ -13,8 +17,9 @@
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans-arabic": "^5.2.7",
+    "@opennextjs/cloudflare": "^1.20.8",
     "lucide-react": "^0.468.0",
-    "next": "16.3.7",
+    "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -23,6 +28,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "prettier": "^3.6.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.147.0"
   }
 }
