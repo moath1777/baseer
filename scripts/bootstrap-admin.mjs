@@ -24,9 +24,9 @@ const id = randomUUID(),
   password = args.includes("--password-stdin")
     ? readFileSync(0, "utf8").trimEnd()
     : randomBytes(21).toString("base64url");
-if (password.length < 8 || Buffer.byteLength(password, "utf8") > 72)
+if (password.length < 1 || Buffer.byteLength(password, "utf8") > 72)
   throw new Error(
-    "The temporary password must be at least 8 characters and at most 72 bytes.",
+    "The temporary password must be non-empty and at most 72 bytes.",
   );
 const hash = await bcrypt.hash(password, 12),
   now = new Date().toISOString();

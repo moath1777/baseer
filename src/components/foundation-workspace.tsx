@@ -47,12 +47,12 @@ const messages: Record<string, [string, string]> = {
     "The email or password is incorrect.",
   ],
   INVALID_CREDENTIAL_FIELDS: [
-    "أدخل بريدًا صحيحًا وكلمة مرور من 12 حرفًا على الأقل (حتى 72 بايت).",
-    "Enter a valid email and a password of at least 12 characters (up to 72 bytes).",
+    "أدخل بريدًا صحيحًا وكلمة مرور غير فارغة (حتى 72 بايت).",
+    "Enter a valid email and a non-empty password (up to 72 bytes).",
   ],
   INVALID_PASSWORD: [
-    "تحقق من كلمة المرور الحالية. الجديدة يجب أن تكون 12 حرفًا على الأقل وحتى 72 بايت.",
-    "Check your current password. The new one must have at least 12 characters and at most 72 bytes.",
+    "تحقق من كلمة المرور الحالية. أدخل كلمة مرور جديدة غير فارغة (حتى 72 بايت).",
+    "Check your current password. Enter a non-empty new password (up to 72 bytes).",
   ],
   ACCOUNT_UNAVAILABLE: [
     "تعذر إنشاء الحساب. إن كان لديك حساب فسجل الدخول.",
@@ -1089,17 +1089,17 @@ function AuthScreen({
               type="password"
               autoComplete={signup ? "new-password" : "current-password"}
               required
-              minLength={signup ? 12 : 1}
+              minLength={1}
               maxLength={72}
               dir="ltr"
             />
             <small>
               {T(
                 signup
-                  ? "12 حرفًا على الأقل. لا يُرسل رمز تحقق أو بريد إلكتروني."
+                  ? "تُقبل كلمة مرور من رمز واحد أو أكثر. لا يُرسل رمز تحقق أو بريد إلكتروني."
                   : "استخدم كلمة مرور حسابك. لا يُرسل رمز تحقق.",
                 signup
-                  ? "At least 12 characters. No verification code or email is sent."
+                  ? "One or more characters. No verification code or email is sent."
                   : "Use your account password. No verification code is sent.",
               )}
             </small>
@@ -1622,7 +1622,7 @@ function PasswordForm({
               name="password"
               autoComplete="new-password"
               required
-              minLength={12}
+              minLength={1}
             />
           </label>
         </div>
@@ -2100,7 +2100,7 @@ function AccessEditor({
               type="password"
               name="password"
               required
-              minLength={12}
+              minLength={1}
               autoComplete="new-password"
             />
           </label>

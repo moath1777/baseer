@@ -375,7 +375,7 @@ test("signup needs no email verification, grants no access, hashes passwords, an
     method: "POST",
     headers: { origin: "http://localhost" },
   });
-  const password = "Test-password-only-42";
+  const password = "س";
   const { account, token } = await authenticate(
     db,
     request,
@@ -388,6 +388,13 @@ test("signup needs no email verification, grants no access, hashes passwords, an
     },
     true,
   );
+  const signedIn = await authenticate(
+    db,
+    request,
+    { email: account.email, password },
+    false,
+  );
+  assert.equal(signedIn.account.id, account.id);
   assert.equal(account.admin, false);
   assert.equal(account.email, "member@example.test");
   assert.deepEqual(account.grants, []);
@@ -452,8 +459,12 @@ test("CSRF checks, password bounds, brute-force limits and last-admin guard are 
       headers: { origin: "https://baseer.test" },
     }),
   );
-  assert.equal(passwordValid("short"), false);
-  assert.equal(passwordValid("temporary"), false);
+  assert.equal(passwordValid("short"), true);
+  assert.equal(passwordValid(""), false);
+  for (const value of ["a", "1", "!", "س"]) {
+    assert.equal(passwordValid(value), true);
+    assert.equal(loginPasswordValid(value), true);
+  }
   assert.equal(loginPasswordValid("temporary"), true);
   assert.equal(passwordValid("a".repeat(73)), false);
   await rateLimit(db, "test-limiter", 1);
