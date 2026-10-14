@@ -987,6 +987,10 @@ function AuthScreen({
         signup ? "signup" : "login",
         data,
       );
+      if (signup) {
+        window.location.replace("/overview");
+        return;
+      }
       onLogin(r.account);
     } catch (e) {
       setError(errorText(e, locale));
