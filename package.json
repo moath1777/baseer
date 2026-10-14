@@ -9,26 +9,33 @@
     "build:cloudflare": "opennextjs-cloudflare build",
     "preview:cloudflare": "opennextjs-cloudflare preview",
     "deploy:cloudflare": "opennextjs-cloudflare deploy",
+    "predeploy:cloudflare": "node scripts/check-deploy.mjs",
     "upload:cloudflare": "opennextjs-cloudflare upload",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write src tests docs README.md ROADMAP.md package.json tsconfig.json next.config.ts",
-    "test": "node --experimental-strip-types --test tests/domain.test.ts"
+    "test": "node --experimental-strip-types --test tests/domain.test.ts tests/foundation.test.ts",
+    "db:migrate": "wrangler d1 migrations apply baseer-m2 --local",
+    "db:migrate:remote": "wrangler d1 migrations apply baseer-m2 --remote",
+    "admin:bootstrap": "node scripts/bootstrap-admin.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans-arabic": "^5.2.7",
     "@opennextjs/cloudflare": "^1.20.8",
+    "bcryptjs": "^3.0.3",
     "lucide-react": "^0.468.0",
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261014.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "miniflare": "^5.20261012.0-beta",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
-    "wrangler": "^4.147.0"
+    "wrangler": "^4.151.0"
   }
 }

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { WorkspaceProvider } from "@/components/workspace-provider";
 import "@fontsource/ibm-plex-sans-arabic/400.css";
 import "@fontsource/ibm-plex-sans-arabic/500.css";
 import "@fontsource/ibm-plex-sans-arabic/600.css";
@@ -7,11 +6,12 @@ import "@fontsource/ibm-plex-sans-arabic/700.css";
 import "./globals.css";
 import "./readability.css";
 import "./management.css";
+import "./foundation.css";
 
 export const metadata: Metadata = {
   title: "بصير | إدارة الأداء المؤسسي",
   description:
-    "نموذج تفاعلي لإدارة الاستراتيجية والمؤشرات ودورات القياس في نظام بصير.",
+    "بصير لإدارة الاستراتيجية والهيكل التنظيمي والأداء المؤسسي.",
   robots: { index: false, follow: false },
   icons: { icon: "/mngdp-logo.png" },
 };
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body>
-        <WorkspaceProvider>{children}</WorkspaceProvider>
+        {children}
       </body>
     </html>
   );

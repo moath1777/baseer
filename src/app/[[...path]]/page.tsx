@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import { Workspace } from "@/components/workspace";
+import { notFound, redirect } from "next/navigation";
+import { FoundationWorkspace } from "@/components/foundation-workspace";
 
 export default async function Page({
   params,
@@ -23,5 +23,6 @@ export default async function Page({
     (path.length === 2 && path[0] !== "indicators")
   )
     notFound();
-  return <Workspace />;
+  if (["indicators", "measurements", "approvals"].includes(path[0])) redirect("/tasks");
+  return <FoundationWorkspace />;
 }

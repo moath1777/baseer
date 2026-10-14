@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "./preview-navigation";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "./preview-navigation";
 import {
   LayoutDashboard,
   Network,
