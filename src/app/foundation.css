@@ -528,13 +528,61 @@
 }
 .f-check input {
   accent-color: #285835;
+  flex-shrink: 0;
+  margin: 3px 0 0;
+  width: 16px;
+  height: 16px;
 }
 .f-dialog-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 20px;
   border-top: 1px solid #edf0e8;
   padding-top: 20px;
+}
+.dialog-content > .f-form {
+  margin-top: 0;
+}
+.dialog-content > p:first-child,
+.dialog-content .f-form > p {
+  margin: 0;
+  line-height: 1.8;
+}
+.dialog-content > p:first-child {
+  margin-bottom: 16px;
+}
+.dialog-content .f-check {
+  align-items: flex-start;
+  line-height: 1.8;
+}
+.dialog-content .f-form-grid > *,
+.dialog-content .f-grant > *,
+.dialog-content .f-detail dl > * {
+  min-width: 0;
+}
+.dialog-content .f-dialog-actions > button {
+  min-height: 44px;
+}
+.f-account-email {
+  color: #73816a;
+  font-size: 13px;
+}
+.f-password-reset summary {
+  cursor: pointer;
+  line-height: 1.8;
+}
+@media (max-width: 600px) {
+  .dialog-content .f-dialog-actions > button {
+    flex: 1 1 120px;
+    justify-content: center;
+  }
+  .dialog-content .f-inline-form {
+    flex-wrap: wrap;
+  }
+  .dialog-content .f-detail dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .f-detail {
   display: grid;
@@ -588,6 +636,24 @@
 .f-danger {
   background: #9b4837;
   border-color: #9b4837;
+}
+.f-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.f-account-actions .f-delete-account {
+  color: #963f32;
+  border-color: #e5c8c0;
+}
+.f-delete-identity {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #e3e9da;
+  border-radius: 8px;
+  background: #f8faf5;
+  font-size: 13px;
 }
 .f-settings {
   display: grid;

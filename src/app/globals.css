@@ -1682,6 +1682,7 @@ tbody tr:hover {
   color: #d3dec9;
 }
 .dialog {
+  --dialog-gutter: 28px;
   border: 1px solid #e0e5d6;
   border-radius: 15px;
   padding: 0;
@@ -1705,7 +1706,8 @@ tbody tr:hover {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
-  padding: 23px 27px;
+  padding: 23px var(--dialog-gutter);
+  gap: 20px;
   background: #fff;
   position: sticky;
   top: 0;
@@ -1714,18 +1716,46 @@ tbody tr:hover {
 .dialog-heading h2 {
   font-size: 22px;
   font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.dialog-heading > div {
+  min-width: 0;
+}
+.dialog-heading > button {
+  flex-shrink: 0;
+}
+.dialog-content {
+  padding: 24px var(--dialog-gutter);
+  overflow-wrap: anywhere;
 }
 .dialog-body {
-  padding: 25px 28px;
+  padding: 25px var(--dialog-gutter);
 }
 .dialog-footer {
-  padding: 18px 27px;
+  padding: 18px var(--dialog-gutter);
   border-top: 1px solid var(--border);
   background: #fbfcf8;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
+}
+@media (max-width: 600px) {
+  .dialog {
+    --dialog-gutter: 20px;
+    max-height: calc(100dvh - 32px);
+  }
+  .dialog-heading {
+    padding-block: 18px;
+    gap: 12px;
+  }
+  .dialog-heading h2 {
+    font-size: 19px;
+  }
+  .dialog-content {
+    padding-block: 20px;
+  }
 }
 .wizard-steps {
   list-style: none;

@@ -79,6 +79,7 @@ try {
     name: "Synthetic M2 acceptance check",
   });
   userId = signup.account.id;
+  assert.equal(signup.account.mustChangePassword, false);
   assert.deepEqual(signup.account.grants, []);
   assert.equal(signup.account.admin, false);
   await request("graph?domain=program", undefined, 403);

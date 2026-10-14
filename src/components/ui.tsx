@@ -88,12 +88,14 @@ export function Dialog({
   onClose,
   children,
   wide = false,
+  padded = false,
   locale,
 }: {
   title: string;
   onClose: () => void;
   children: ReactNode;
   wide?: boolean;
+  padded?: boolean;
   locale: Locale;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -107,6 +109,7 @@ export function Dialog({
   return (
     <dialog
       ref={ref}
+      dir={locale === "ar" ? "rtl" : "ltr"}
       className={`dialog ${wide ? "dialog-wide" : ""}`}
       aria-labelledby="dialog-title"
       onCancel={onClose}
@@ -138,7 +141,7 @@ export function Dialog({
           <X size={20} />
         </button>
       </div>
-      {children}
+      {padded ? <div className="dialog-content">{children}</div> : children}
     </dialog>
   );
 }

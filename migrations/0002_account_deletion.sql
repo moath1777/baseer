@@ -1,0 +1,3 @@
+CREATE TRIGGER keep_last_admin_on_delete BEFORE DELETE ON users
+WHEN OLD.admin=1 AND OLD.active=1 AND (SELECT COUNT(*) FROM users WHERE admin=1 AND active=1)=1
+BEGIN SELECT RAISE(ABORT, 'LAST_ADMIN'); END;

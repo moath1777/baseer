@@ -1,6 +1,6 @@
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { Miniflare, convertV4MiniflareOptions } from "miniflare";
 import type { D1Database } from "@cloudflare/workers-types";
 import {
@@ -90,14 +90,19 @@ before(async () => {
     }),
   );
   db = (await mf.getD1Database("DB")) as unknown as D1Database;
-  await db.exec(
-    (
-      await readFile(
-        new URL("../migrations/0001_foundation.sql", import.meta.url),
-        "utf8",
-      )
-    ).replace(/\r?\n/g, " "),
-  );
+  for (const migration of (
+    await readdir(new URL("../migrations/", import.meta.url))
+  )
+    .filter((name) => name.endsWith(".sql"))
+    .sort())
+    await db.exec(
+      (
+        await readFile(
+          new URL(`../migrations/${migration}`, import.meta.url),
+          "utf8",
+        )
+      ).replace(/\r?\n/g, " "),
+    );
   await db
     .prepare(
       "INSERT INTO users(id,email,name,password_hash,admin,created_at) VALUES(?,?,?,?,?,?)",
@@ -395,6 +400,8 @@ test("signup needs no email verification, grants no access, hashes passwords, an
     false,
   );
   assert.equal(signedIn.account.id, account.id);
+  assert.equal(account.mustChangePassword, false);
+  assert.equal(signedIn.account.mustChangePassword, false);
   assert.equal(account.admin, false);
   assert.equal(account.email, "member@example.test");
   assert.deepEqual(account.grants, []);
@@ -474,4 +481,122 @@ test("CSRF checks, password bounds, brute-force limits and last-admin guard are 
       db.prepare("UPDATE users SET active=0 WHERE id=?").bind(admin.id).run(),
     /LAST_ADMIN/,
   );
+});
+
+test("account deletion is admin-only, revokes sessions and grants, and retains audit and work records", async () => {
+  const request = new Request("http://localhost/api/foundation/signup", {
+    method: "POST",
+    headers: { origin: "http://localhost" },
+  });
+  const { account, token } = await authenticate(
+    db,
+    request,
+    { email: "delete-test@example.test", password: "x", name: "Delete test" },
+    true,
+  );
+  await db
+    .prepare(
+      "INSERT INTO grants(id,user_id,domain,role,restricted) VALUES(?,?, 'program','viewer',0)",
+    )
+    .bind(crypto.randomUUID(), account.id)
+    .run();
+  const graphBefore = await graphFor(db, "program");
+  await assert.rejects(
+    () =>
+      userAction(db, member("viewer"), {
+        action: "delete",
+        userId: account.id,
+      }),
+    /FORBIDDEN/,
+  );
+  await assert.rejects(
+    () => userAction(db, admin, { action: "delete", userId: admin.id }),
+    /SELF_CHANGE_FORBIDDEN/,
+  );
+  await userAction(db, admin, { action: "delete", userId: account.id });
+  assert.equal(await accountFor(db, account.id), null);
+  assert.equal(await currentAccount(db, `baseer_session=${token}`), null);
+  for (const table of ["sessions", "grants"])
+    assert.equal(
+      (await db
+        .prepare(`SELECT COUNT(*) AS total FROM ${table} WHERE user_id=?`)
+        .bind(account.id)
+        .first<{ total: number }>())!.total,
+      0,
+    );
+  const audit = await db
+    .prepare(
+      "SELECT before_json,after_json FROM audit WHERE action='account.deleted' AND entity_id=?",
+    )
+    .bind(account.id)
+    .first<{ before_json: string; after_json: string | null }>();
+  assert.equal(JSON.parse(audit!.before_json).email, account.email);
+  assert.equal(JSON.parse(audit!.before_json).grants.length, 1);
+  assert.equal(audit!.after_json, null);
+  assert.ok(
+    await db
+      .prepare(
+        "SELECT id FROM audit WHERE action='account.created' AND entity_id=?",
+      )
+      .bind(account.id)
+      .first(),
+  );
+  assert.deepEqual(await graphFor(db, "program"), graphBefore);
+  await assert.rejects(
+    () =>
+      authenticate(db, request, { email: account.email, password: "x" }, false),
+    /INVALID_CREDENTIALS/,
+  );
+  await assert.rejects(
+    () => userAction(db, admin, { action: "delete", userId: account.id }),
+    /NOT_FOUND/,
+  );
+});
+
+test("deletion cannot remove the last active administrator and rolls back if audit persistence fails", async () => {
+  await assert.rejects(
+    () => db.prepare("DELETE FROM users WHERE id=?").bind(admin.id).run(),
+    /LAST_ADMIN/,
+  );
+  assert.ok(await accountFor(db, admin.id));
+  const request = new Request("http://localhost/api/foundation/signup", {
+    method: "POST",
+    headers: { origin: "http://localhost" },
+  });
+  const { account, token } = await authenticate(
+    db,
+    request,
+    {
+      email: "delete-rollback@example.test",
+      password: "x",
+      name: "Rollback test",
+    },
+    true,
+  );
+  await db.exec(
+    "CREATE TRIGGER reject_delete_audit BEFORE INSERT ON audit WHEN NEW.action='account.deleted' BEGIN SELECT RAISE(ABORT,'TEST_AUDIT_FAILURE'); END;",
+  );
+  try {
+    await assert.rejects(
+      () => userAction(db, admin, { action: "delete", userId: account.id }),
+      /TEST_AUDIT_FAILURE/,
+    );
+    assert.ok(await accountFor(db, account.id));
+    assert.equal(
+      (await currentAccount(db, `baseer_session=${token}`))?.id,
+      account.id,
+    );
+    assert.equal(
+      await db
+        .prepare(
+          "SELECT id FROM audit WHERE action='account.deleted' AND entity_id=?",
+        )
+        .bind(account.id)
+        .first(),
+      null,
+    );
+  } finally {
+    await db.exec("DROP TRIGGER reject_delete_audit;");
+  }
+  await userAction(db, admin, { action: "delete", userId: account.id });
 });

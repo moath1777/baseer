@@ -266,6 +266,34 @@ export async function userAction(
         { active: body.active, admin: body.admin, grants },
       ),
     ]);
+  } else if (body.action === "delete") {
+    const guard = crypto.randomUUID();
+    try {
+      await db.batch([
+        db
+          .prepare(
+            "INSERT INTO write_guards(id,ok) VALUES(?,EXISTS(SELECT 1 FROM users WHERE id=?))",
+          )
+          .bind(guard, target),
+        db.prepare("DELETE FROM users WHERE id=?").bind(target),
+        auditStatement(
+          db,
+          account,
+          null,
+          "account.deleted",
+          target,
+          before,
+          null,
+        ),
+        db.prepare("DELETE FROM write_guards WHERE id=?").bind(guard),
+      ]);
+    } catch (error) {
+      if (String(error).includes("LAST_ADMIN"))
+        throw new AppError("LAST_ADMIN", 409);
+      if (String(error).includes("CHECK constraint"))
+        throw new AppError("NOT_FOUND", 404);
+      throw error;
+    }
   } else if (body.action === "reset-password") {
     if (!passwordValid(body.password)) throw new AppError("INVALID_PASSWORD");
     await db.batch([

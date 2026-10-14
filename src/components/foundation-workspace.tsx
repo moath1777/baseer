@@ -38,6 +38,10 @@ import {
 
 type Locale = "ar" | "en";
 const messages: Record<string, [string, string]> = {
+  LAST_ADMIN: [
+    "لا يمكن حذف آخر مدير نشط.",
+    "The last active administrator cannot be deleted.",
+  ],
   UNAUTHENTICATED: [
     "انتهت الجلسة. سجل الدخول مجددًا.",
     "Your session ended. Please sign in again.",
@@ -905,6 +909,7 @@ export function FoundationWorkspace() {
       )}
       {deleting && (
         <Dialog
+          padded
           locale={locale}
           title={T("حذف العنصر", "Delete record")}
           onClose={() => !busy && setDeleting(null)}
@@ -1218,6 +1223,7 @@ function NodeEditor({
   );
   return (
     <Dialog
+      padded
       wide
       locale={locale}
       title={
@@ -1407,7 +1413,13 @@ function NodeDetail({
     }
   };
   return (
-    <Dialog locale={locale} wide title={label(node, locale)} onClose={onClose}>
+    <Dialog
+      padded
+      locale={locale}
+      wide
+      title={label(node, locale)}
+      onClose={onClose}
+    >
       <div className="f-detail">
         <span className="f-eyebrow">
           {kindNames[node.kind][locale]} · {node.code}
@@ -1658,6 +1670,7 @@ function Settings({
 }) {
   const [users, setUsers] = useState<Account[]>([]),
     [selected, setSelected] = useState<Account | null>(null),
+    [deletingUser, setDeletingUser] = useState<Account | null>(null),
     [error, setError] = useState("");
   const [events, setEvents] = useState<Record<string, unknown>[] | null>(null);
   const T = (ar: string, en: string) => (locale === "ar" ? ar : en);
@@ -1742,15 +1755,26 @@ function Settings({
                       {u.active ? T("نشط", "Active") : T("معطل", "Disabled")}
                     </td>
                     <td>
-                      <button
-                        className="f-secondary"
-                        disabled={u.id === account.id}
-                        onClick={() => setSelected(u)}
-                      >
-                        {u.id === account.id
-                          ? T("حسابك", "Your account")
-                          : T("إدارة الوصول", "Manage access")}
-                      </button>
+                      <div className="f-account-actions">
+                        <button
+                          className="f-secondary"
+                          disabled={u.id === account.id}
+                          onClick={() => setSelected(u)}
+                        >
+                          {u.id === account.id
+                            ? T("حسابك", "Your account")
+                            : T("إدارة الوصول", "Manage access")}
+                        </button>
+                        {u.id !== account.id && (
+                          <button
+                            className="f-secondary f-delete-account"
+                            onClick={() => setDeletingUser(u)}
+                          >
+                            <Trash2 size={15} />
+                            {T("حذف الحساب", "Delete account")}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1856,7 +1880,84 @@ function Settings({
           }}
         />
       )}
+      {deletingUser && (
+        <DeleteAccountDialog
+          locale={locale}
+          user={deletingUser}
+          onClose={() => setDeletingUser(null)}
+          onDeleted={async () => {
+            setDeletingUser(null);
+            setEvents(null);
+            await refresh();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function DeleteAccountDialog({
+  locale,
+  user,
+  onClose,
+  onDeleted,
+}: {
+  locale: Locale;
+  user: Account;
+  onClose: () => void;
+  onDeleted: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  const T = (ar: string, en: string) => (locale === "ar" ? ar : en);
+  return (
+    <Dialog
+      padded
+      locale={locale}
+      title={T("حذف الحساب", "Delete account")}
+      onClose={() => !busy && onClose()}
+    >
+      <div className="f-detail">
+        <p>
+          {T(
+            "سيُحذف الحساب نهائيًا وتُلغى صلاحياته وجلساته. ستبقى بيانات العمل وسجلات إجراءاته السابقة محفوظة. لا يمكن التراجع عن الحذف.",
+            "This permanently deletes the account and revokes its access and sessions. Work records and its previous audit history will be retained. This cannot be undone.",
+          )}
+        </p>
+        <div className="f-delete-identity">
+          <strong>{user.name}</strong>
+          <bdi dir="ltr">{user.email}</bdi>
+        </div>
+        {error && (
+          <p className="f-error" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="f-dialog-actions">
+          <button
+            className="f-button f-danger"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              try {
+                await api("users", { action: "delete", userId: user.id });
+                await onDeleted();
+              } catch (e) {
+                setError(errorText(e, locale));
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {T("تأكيد حذف الحساب", "Confirm account deletion")}
+          </button>
+          <button className="f-secondary" disabled={busy} onClick={onClose}>
+            {T("إلغاء", "Cancel")}
+          </button>
+        </div>
+      </div>
+    </Dialog>
   );
 }
 
@@ -1903,6 +2004,7 @@ function AccessEditor({
     setGrants((gs) => gs.map((g) => (g.id === id ? { ...g, ...value } : g)));
   return (
     <Dialog
+      padded
       wide
       locale={locale}
       title={`${T("إدارة الوصول", "Manage access")} · ${user.name}`}
@@ -1930,7 +2032,9 @@ function AccessEditor({
           }
         }}
       >
-        <p dir="ltr">{user.email}</p>
+        <p className="f-account-email">
+          <bdi dir="ltr">{user.email}</bdi>
+        </p>
         <label className="f-check">
           <input
             type="checkbox"
