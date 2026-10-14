@@ -436,15 +436,7 @@ export function FoundationWorkspace() {
               }}
             />
           ) : section === "settings" ? (
-            <Settings
-              account={account}
-              graph={graph}
-              locale={locale}
-              onPasswordChanged={() => {
-                setAccount(null);
-                setGraph(null);
-              }}
-            />
+            <Settings account={account} graph={graph} locale={locale} />
           ) : !domains.length ? (
             <div className="f-empty">
               <ShieldCheck size={36} />
@@ -1661,12 +1653,10 @@ function Settings({
   account,
   graph,
   locale,
-  onPasswordChanged,
 }: {
   account: Account;
   graph: Graph | null;
   locale: Locale;
-  onPasswordChanged: () => void;
 }) {
   const [users, setUsers] = useState<Account[]>([]),
     [selected, setSelected] = useState<Account | null>(null),
@@ -1699,7 +1689,6 @@ function Settings({
           </p>
         </div>
       </div>
-      <PasswordForm locale={locale} onDone={onPasswordChanged} />
       {account.admin && (
         <section className="f-panel">
           <div className="f-panel-title">
