@@ -126,7 +126,7 @@ export function Dialog({
       <div className="dialog-heading">
         <div>
           <span className="eyebrow">
-            {locale === "ar" ? "بصير / مساحة العمل" : "BASEER / WORKSPACE"}
+            {locale === "ar" ? "بصير / إدارة الأداء" : "BASEER / PERFORMANCE"}
           </span>
           <h2 id="dialog-title">{title}</h2>
         </div>

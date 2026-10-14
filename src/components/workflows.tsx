@@ -13,6 +13,7 @@ import {
   Layers,
 } from "lucide-react";
 import { Dialog, Badge } from "./ui";
+import { frequencyNames, levelNames } from "@/lib/performance";
 import {
   type Locale,
   type KPI,
@@ -49,6 +50,18 @@ export function CreateIndicator({
     baseline: "60",
     unit: "percent",
     direction: "positive",
+    level: "operational",
+    frequency: "quarterly",
+    organizationalUnit: "",
+    sector: "",
+    classification: "",
+    confidentiality: "normal",
+    baselineYear: "2025",
+    effectiveDate: "2026-01-01",
+    q1: "",
+    q2: "",
+    q3: "",
+    aggregation: "mean",
   };
   const draftKey = `baseer:m1:kpi-draft:${domain}`;
   const [form, setForm] = useState(() => {
@@ -76,7 +89,7 @@ export function CreateIndicator({
         return Array.isArray(draft?.children)
           ? draft.children.filter(
               (c: { id: string; weight: number }) =>
-                kpis.some((k) => k.id === c.id && k.type === "standalone") &&
+                kpis.some((k) => k.id === c.id) &&
                 Number.isFinite(c.weight) &&
                 c.weight >= 0,
             )
@@ -104,9 +117,18 @@ export function CreateIndicator({
           "Complete the indicator name and description.",
         ),
       );
-    if (step === 1 && (!form.owner.trim() || !form.ambassador.trim()))
+    if (
+      step === 1 &&
+      (!form.owner.trim() ||
+        !form.ambassador.trim() ||
+        !form.organizationalUnit.trim() ||
+        !form.sector.trim())
+    )
       return setError(
-        T("حدد مالك المؤشر وسفير الأداء.", "Specify the owner and ambassador."),
+        T(
+          "حدد المالك والسفير والقطاع والوحدة التنظيمية.",
+          "Specify owner, ambassador, sector and organizational unit.",
+        ),
       );
     if (step === 2) {
       const target = Number(form.target),
@@ -129,13 +151,30 @@ export function CreateIndicator({
       if (
         form.type === "composite" &&
         (!children.length ||
-          children.some((c) => c.weight <= 0) ||
-          Math.abs(children.reduce((n, c) => n + c.weight, 0) - 100) > 0.001)
+          (form.aggregation === "weighted" &&
+            (children.some((c) => c.weight <= 0) ||
+              Math.abs(children.reduce((n, c) => n + c.weight, 0) - 100) >
+                0.001)))
       )
         return setError(
           T(
             "اختر مؤشرات فرعية بأوزان موجبة مجموعها 100%.",
             "Choose child indicators with positive weights totalling 100%.",
+          ),
+        );
+      if (
+        [form.q1, form.q2, form.q3].some(
+          (value) =>
+            value.trim() &&
+            (!Number.isFinite(Number(value)) ||
+              Number(value) <= 0 ||
+              (form.unit === "percent" && Number(value) > 100)),
+        )
+      )
+        return setError(
+          T(
+            "المستهدفات المرحلية يجب أن تكون موجبة وضمن وحدة القياس.",
+            "Period targets must be positive and within the measurement unit.",
           ),
         );
     }
@@ -148,12 +187,6 @@ export function CreateIndicator({
         (max, k) => Math.max(max, Number(k.code.split("-").at(-1)) || 0),
         0,
       ) + 1;
-    const sector =
-      form.objective === "digital"
-        ? { ar: "التحول الرقمي", en: "Digital transformation" }
-        : form.objective === "people"
-          ? { ar: "رأس المال البشري", en: "Human capital" }
-          : { ar: "التميز المؤسسي", en: "Institutional excellence" };
     const created: KPI = {
       id: crypto.randomUUID(),
       code: `${domain === "program" ? "KPI" : "MNG"}-${codeNumber.toString().padStart(3, "0")}`,
@@ -166,7 +199,30 @@ export function CreateIndicator({
       objective: form.objective,
       owner: { ar: form.owner.trim(), en: form.owner.trim() },
       ambassador: { ar: form.ambassador.trim(), en: form.ambassador.trim() },
-      sector,
+      sector: { ar: form.sector.trim(), en: form.sector.trim() },
+      organizationalUnit: {
+        ar: form.organizationalUnit.trim(),
+        en: form.organizationalUnit.trim(),
+      },
+      level: form.level as KPI["level"],
+      frequency: form.frequency as KPI["frequency"],
+      classification: form.classification.trim(),
+      confidentiality: form.confidentiality as KPI["confidentiality"],
+      baselineYear: Number(form.baselineYear),
+      effectiveDate: form.effectiveDate,
+      aggregation: form.aggregation as KPI["aggregation"],
+      periodicTargets:
+        form.type === "standalone"
+          ? Object.fromEntries(
+              [
+                ["2026-Q1", form.q1],
+                ["2026-Q2", form.q2],
+                ["2026-Q3", form.q3],
+              ]
+                .filter(([, value]) => value.trim())
+                .map(([key, value]) => [key, Number(value)]),
+            )
+          : undefined,
       target: form.type === "composite" ? 100 : Number(form.target),
       baseline: Number(form.baseline),
       unit: form.type === "composite" ? "percent" : (form.unit as KPI["unit"]),
@@ -175,7 +231,13 @@ export function CreateIndicator({
           ? "positive"
           : (form.direction as KPI["direction"]),
       type: form.type as KPI["type"],
-      children: form.type === "composite" ? children : [],
+      children:
+        form.type === "composite"
+          ? children.map((c) => ({
+              ...c,
+              weight: form.aggregation === "mean" ? 1 : c.weight,
+            }))
+          : [],
       createdAt: new Date().toISOString(),
     };
     try {
@@ -211,6 +273,32 @@ export function CreateIndicator({
           </div>
           {step === 0 && (
             <div className="form-grid">
+              <label className="field">
+                {T("مستوى المؤشر", "Indicator level")}
+                <select
+                  value={form.level}
+                  onChange={(e) => set("level", e.target.value)}
+                >
+                  {Object.entries(levelNames).map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name[locale]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                {T("تصنيف المؤشر", "Classification")}
+                <input
+                  required
+                  maxLength={100}
+                  value={form.classification}
+                  onChange={(e) => set("classification", e.target.value)}
+                  placeholder={T(
+                    "ميثاق، خريطة استراتيجية، وطني…",
+                    "Charter, strategy map, national…",
+                  )}
+                />
+              </label>
               <label className="field full">
                 {T("اسم المؤشر بالعربية", "Indicator name in Arabic")}{" "}
                 <span>*</span>
@@ -277,6 +365,47 @@ export function CreateIndicator({
           )}
           {step === 1 && (
             <div className="form-grid">
+              <label className="field">
+                {T("القطاع", "Sector")}
+                <input
+                  required
+                  maxLength={120}
+                  value={form.sector}
+                  onChange={(e) => set("sector", e.target.value)}
+                />
+              </label>
+              <label className="field">
+                {T("الوحدة التنظيمية", "Organizational unit")}
+                <input
+                  required
+                  maxLength={120}
+                  value={form.organizationalUnit}
+                  onChange={(e) => set("organizationalUnit", e.target.value)}
+                />
+              </label>
+              <label className="field full">
+                {T("سرية المؤشر · اختياري", "Confidentiality · optional")}
+                <select
+                  value={form.confidentiality}
+                  onChange={(e) => set("confidentiality", e.target.value)}
+                >
+                  <option value="normal">
+                    {T("غير محدد", "Not specified")}
+                  </option>
+                  <option value="restricted">
+                    {T(
+                      "سري للغاية وغير قابل للتداول",
+                      "Highly confidential — not for circulation",
+                    )}
+                  </option>
+                </select>
+                <small>
+                  {T(
+                    "تصنيف تجريبي فقط؛ لا تدخل بيانات سرية في هذه النسخة.",
+                    "Prototype classification only; do not enter confidential data in this version.",
+                  )}
+                </small>
+              </label>
               <label className="field full">
                 {T("مالك المؤشر / الإدارة", "Indicator owner / department")}{" "}
                 <span>*</span>
@@ -318,6 +447,39 @@ export function CreateIndicator({
           )}
           {step === 2 && (
             <div className="form-grid">
+              <label className="field">
+                {T("دورية القياس", "Frequency")}
+                <select
+                  value={form.frequency}
+                  onChange={(e) => set("frequency", e.target.value)}
+                >
+                  {Object.entries(frequencyNames).map(([id, name]) => (
+                    <option key={id} value={id}>
+                      {name[locale]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                {T("تاريخ بداية السريان", "Effective date")}
+                <input
+                  required
+                  type="date"
+                  value={form.effectiveDate}
+                  onChange={(e) => set("effectiveDate", e.target.value)}
+                />
+              </label>
+              <label className="field">
+                {T("سنة خط الأساس", "Baseline year")}
+                <input
+                  required
+                  type="number"
+                  min="1900"
+                  max="2100"
+                  value={form.baselineYear}
+                  onChange={(e) => set("baselineYear", e.target.value)}
+                />
+              </label>
               <label className="field">
                 {T("وحدة القياس", "Measurement unit")}
                 <select
@@ -366,7 +528,7 @@ export function CreateIndicator({
                 />
               </label>
               <label className="field">
-                {T("خط الأساس · 2025", "Baseline · 2025")} <span>*</span>
+                {T("خط الأساس", "Baseline")} <span>*</span>
                 <input
                   required
                   type="number"
@@ -379,6 +541,23 @@ export function CreateIndicator({
               </label>
               {form.type === "composite" && (
                 <div className="full child-picker">
+                  <label className="field">
+                    {T("طريقة التجميع", "Aggregation")}
+                    <select
+                      value={form.aggregation}
+                      onChange={(e) => set("aggregation", e.target.value)}
+                    >
+                      <option value="mean">
+                        {T(
+                          "متوسط المؤشرات الفرعية دون أوزان",
+                          "Mean of child indicators without weights",
+                        )}
+                      </option>
+                      <option value="weighted">
+                        {T("متوسط موزون", "Weighted mean")}
+                      </option>
+                    </select>
+                  </label>
                   <h4>
                     {T(
                       "المؤشرات الفرعية والأوزان",
@@ -386,7 +565,7 @@ export function CreateIndicator({
                     )}
                   </h4>
                   {kpis
-                    .filter((k) => k.type === "standalone")
+                    .filter((k) => k.domain === domain)
                     .map((k) => {
                       const child = children.find((c) => c.id === k.id);
                       return (
@@ -405,7 +584,7 @@ export function CreateIndicator({
                             />
                             {k.name[locale]}
                           </label>
-                          {child && (
+                          {child && form.aggregation === "weighted" && (
                             <input
                               aria-label={`${T("وزن", "Weight")} ${k.name[locale]}`}
                               type="number"
@@ -427,21 +606,45 @@ export function CreateIndicator({
                         </div>
                       );
                     })}
-                  <p>
-                    {T("مجموع الأوزان", "Total weight")}:{" "}
-                    <b>{children.reduce((n, c) => n + c.weight, 0)}%</b>
-                  </p>
+                  {form.aggregation === "weighted" && (
+                    <p>
+                      {T("مجموع الأوزان", "Total weight")}:{" "}
+                      <b>{children.reduce((n, c) => n + c.weight, 0)}%</b>
+                    </p>
+                  )}
                 </div>
               )}
-              <div className="inline-notice full">
-                <Info size={18} />
-                <span>
-                  {T(
-                    "الدورية ربع سنوية في هذه التجربة. المستهدف ثابت عبر الفترات التجريبية؛ المستهدفات المرحلية والمعادلات المخصصة ضمن المرحلة الثالثة.",
-                    "This prototype uses quarterly frequency and a fixed target. Period-specific targets and custom formulas belong to milestone 3.",
-                  )}
-                </span>
-              </div>
+              {form.type === "standalone" && (
+                <fieldset className="full period-targets">
+                  <legend>
+                    {T(
+                      "مستهدفات الفترات التجريبية · اختياري",
+                      "Prototype period targets · optional",
+                    )}
+                  </legend>
+                  <p className="muted">
+                    {T(
+                      "عند ترك الفترة فارغة يُستخدم المستهدف الأساسي. جدولة القياس بحسب الدورية تُفعّل مع محرك الدورات.",
+                      "Blank periods use the main target. Frequency-based scheduling requires the measurement cycle service.",
+                    )}
+                  </p>
+                  <div className="form-grid">
+                    {(["q1", "q2", "q3"] as const).map((key, index) => (
+                      <label key={key} className="field">
+                        {T(`الربع ${index + 1} · 2026`, `Q${index + 1} · 2026`)}
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="any"
+                          max={form.unit === "percent" ? 100 : undefined}
+                          value={form[key]}
+                          onChange={(e) => set(key, e.target.value)}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              )}
             </div>
           )}
           {step === 3 && (
@@ -634,7 +837,7 @@ export function MeasurementForm({
             <h3>{kpi.name[locale]}</h3>
             <p>
               {T("الربع الثالث 2026", "Q3 2026")} · {T("المستهدف", "Target")}:{" "}
-              {kpi.target}
+              {kpi.periodicTargets?.[period] ?? kpi.target}
               {kpi.unit === "percent" ? "%" : T(" أيام", " days")}
             </p>
           </div>
@@ -808,7 +1011,7 @@ export function ReviewForm({
           <div>
             <span>{T("المستهدف", "Target")}</span>
             <strong>
-              {kpi.target}
+              {kpi.periodicTargets?.[m.period] ?? kpi.target}
               {kpi.unit === "percent" ? "%" : T(" أيام", " days")}
             </strong>
           </div>

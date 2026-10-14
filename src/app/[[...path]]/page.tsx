@@ -14,6 +14,8 @@ export default async function Page({
     "measurements",
     "approvals",
     "settings",
+    "tasks",
+    "reports",
   ];
   if (
     path.length > 2 ||

@@ -32,6 +32,20 @@ export type KPI = {
   type: "standalone" | "composite";
   children: { id: string; weight: number }[];
   createdAt: string;
+  level?:
+    | "strategic"
+    | "sub-strategic"
+    | "operational"
+    | "composite-operational"
+    | "sub-operational";
+  frequency?: "quarterly" | "semiannual" | "annual";
+  organizationalUnit?: Text;
+  classification?: string;
+  confidentiality?: "normal" | "restricted";
+  baselineYear?: number;
+  effectiveDate?: string;
+  periodicTargets?: Partial<Record<Period, number>>;
+  aggregation?: "weighted" | "mean";
 };
 export type AuditEvent = {
   id: string;
@@ -46,6 +60,22 @@ export type Store = {
   kpis: KPI[];
   measurements: Measurement[];
   events: AuditEvent[];
+  requests?: WorkRequest[];
+};
+export type WorkRequest = {
+  id: string;
+  domain: KPI["domain"];
+  kpiId: string;
+  type: "change" | "corrective" | "delegation";
+  title: string;
+  detail: string;
+  replacement?: string;
+  start?: string;
+  end?: string;
+  status: "submitted" | "approved" | "returned";
+  createdAt: string;
+  actor: Role;
+  comment: string;
 };
 
 export const roles: Record<Role, Text> = {
@@ -125,7 +155,11 @@ export function scoreFor(
       (m) => m.kpiId === kpi.id && m.period === period,
     );
     return m?.status === "approved"
-      ? achievement(m.value, kpi.target, kpi.direction)
+      ? achievement(
+          m.value,
+          kpi.periodicTargets?.[period] ?? kpi.target,
+          kpi.direction,
+        )
       : null;
   }
   if (!kpi.children.length) return null;
@@ -136,12 +170,12 @@ export function scoreFor(
     const target = store.kpis.find(
       (k) => k.id === child.id && k.domain === kpi.domain,
     );
-    if (!target || !Number.isFinite(child.weight) || child.weight <= 0)
-      return null;
+    const weight = kpi.aggregation === "mean" ? 1 : child.weight;
+    if (!target || !Number.isFinite(weight) || weight <= 0) return null;
     const score = scoreFor(target, period, store, next);
     if (score === null) return null;
-    result += score * child.weight;
-    total += child.weight;
+    result += score * weight;
+    total += weight;
   }
   return total > 0 ? result / total : null;
 }
@@ -200,6 +234,23 @@ export function isStore(value: unknown): value is Store {
     Array.isArray(s.kpis) &&
     Array.isArray(s.measurements) &&
     Array.isArray(s.events) &&
+    (s.requests === undefined ||
+      (Array.isArray(s.requests) &&
+        s.requests.every(
+          (r) =>
+            r &&
+            typeof r.id === "string" &&
+            typeof r.kpiId === "string" &&
+            ["program", "ministry"].includes(r.domain) &&
+            ["change", "corrective", "delegation"].includes(r.type) &&
+            ["submitted", "approved", "returned"].includes(r.status) &&
+            typeof r.title === "string" &&
+            typeof r.detail === "string" &&
+            typeof r.comment === "string" &&
+            typeof r.createdAt === "string" &&
+            !Number.isNaN(Date.parse(r.createdAt)) &&
+            Object.hasOwn(roles, r.actor),
+        ))) &&
     s.kpis.every(
       (k) =>
         k &&
@@ -221,6 +272,29 @@ export function isStore(value: unknown): value is Store {
         Number.isFinite(k.target) &&
         k.target > 0 &&
         Number.isFinite(k.baseline) &&
+        (k.level === undefined ||
+          [
+            "strategic",
+            "sub-strategic",
+            "operational",
+            "composite-operational",
+            "sub-operational",
+          ].includes(k.level)) &&
+        (k.frequency === undefined ||
+          ["quarterly", "semiannual", "annual"].includes(k.frequency)) &&
+        (k.organizationalUnit === undefined ||
+          (typeof k.organizationalUnit.ar === "string" &&
+            typeof k.organizationalUnit.en === "string")) &&
+        (k.periodicTargets === undefined ||
+          (k.periodicTargets !== null &&
+            typeof k.periodicTargets === "object" &&
+            Object.entries(k.periodicTargets).every(
+              ([p, target]) =>
+                ["2026-Q1", "2026-Q2", "2026-Q3"].includes(p) &&
+                typeof target === "number" &&
+                Number.isFinite(target) &&
+                target > 0,
+            ))) &&
         Array.isArray(k.children) &&
         k.children.every(
           (c) =>

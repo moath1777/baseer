@@ -50,12 +50,6 @@ function useWorkspaceState() {
           setDomain(preferences.domain);
         if (["2026-Q1", "2026-Q2", "2026-Q3"].includes(preferences.period))
           setPeriod(preferences.period);
-        if (
-          ["performance", "ambassador", "owner", "viewer"].includes(
-            preferences.role,
-          )
-        )
-          setRole(preferences.role);
       }
     } catch {
       setStorageError(true);
@@ -70,7 +64,7 @@ function useWorkspaceState() {
       try {
         localStorage.setItem(
           PREFERENCES,
-          JSON.stringify({ locale, domain, period, role }),
+          JSON.stringify({ locale, domain, period }),
         );
       } catch {
         setStorageError(true);

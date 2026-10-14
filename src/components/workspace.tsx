@@ -8,11 +8,9 @@ import {
   Network,
   ChartNoAxesCombined,
   ClipboardList,
-  GitPullRequest,
   Settings2,
   Search,
   Bell,
-  ChevronDown,
   Plus,
   ArrowLeft,
   ArrowRight,
@@ -31,7 +29,6 @@ import {
   History,
   RotateCcw,
   Building2,
-  ListTree,
 } from "lucide-react";
 import { freshStore } from "@/lib/seed";
 import {
@@ -50,9 +47,17 @@ import {
 import { Badge, Score, Progress, Dialog, Empty, DirectionArrow } from "./ui";
 import { CreateIndicator, MeasurementForm, ReviewForm } from "./workflows";
 import { useWorkspace } from "./workspace-provider";
+import { PerformanceExplorer, ReportsPage } from "./performance-explorer";
+import { TaskCenter } from "./task-center";
+import {
+  frequencyNames,
+  levelNames,
+  kpiLevel,
+  kpiUnit,
+} from "@/lib/performance";
 
 const navigation = [
-  { id: "overview", icon: LayoutDashboard, ar: "نظرة عامة", en: "Overview" },
+  { id: "overview", icon: LayoutDashboard, ar: "الصفحة الرئيسية", en: "Home" },
   {
     id: "strategy",
     icon: Network,
@@ -60,22 +65,16 @@ const navigation = [
     en: "Strategy structure",
   },
   {
-    id: "indicators",
-    icon: ChartNoAxesCombined,
-    ar: "مؤشرات الأداء",
-    en: "Performance indicators",
-  },
-  {
-    id: "measurements",
+    id: "tasks",
     icon: ClipboardList,
-    ar: "دورة القياس",
-    en: "Measurement cycle",
+    ar: "مركز المهام",
+    en: "Task center",
   },
   {
-    id: "approvals",
-    icon: GitPullRequest,
-    ar: "الطلبات والموافقات",
-    en: "Requests & approvals",
+    id: "reports",
+    icon: FileText,
+    ar: "التقارير",
+    en: "Reports",
   },
 ];
 const periodLabel = (period: Period, locale: Locale) =>
@@ -111,10 +110,6 @@ export function Workspace() {
     save,
     query,
     setQuery,
-    kind,
-    setKind,
-    filter,
-    setFilter,
     toast,
     setToast,
   } = useWorkspace();
@@ -124,9 +119,6 @@ export function Workspace() {
   );
   const [measureKpi, setMeasureKpi] = useState<KPI | null>(null);
   const [review, setReview] = useState<Measurement | null>(null);
-  const [strategyView, setStrategyView] = useState<
-    "strategic" | "organizational"
-  >("strategic");
   const [detailTab, setDetailTab] = useState("overview");
   const T = (ar: string, en: string) => (locale === "ar" ? ar : en);
   const L = (text: Text) => text[locale];
@@ -166,7 +158,13 @@ export function Workspace() {
   const canReview =
     ["performance", "owner"].includes(role) && period === "2026-Q3";
   const selected = kpis.find((k) => k.id === detailId);
-  const currentNav = navigation.find((n) => n.id === section);
+  const activeSection =
+    section === "indicators"
+      ? "strategy"
+      : ["measurements", "approvals"].includes(section)
+        ? "tasks"
+        : section;
+  const currentNav = navigation.find((n) => n.id === activeSection);
   const newEvent = (kpiId: string, action: Text, detail = ""): AuditEvent => ({
     id: crypto.randomUUID(),
     kpiId,
@@ -265,16 +263,6 @@ export function Workspace() {
       );
     }
   };
-  const filteredKpis = kpis.filter(
-    (k) =>
-      (!query ||
-        `${k.name.ar} ${k.name.en} ${k.code} ${k.owner.ar} ${k.owner.en}`
-          .toLowerCase()
-          .includes(query.toLowerCase())) &&
-      (kind === "all" || k.type === kind) &&
-      (filter === "all" || measurementFor(k)?.status === filter),
-  );
-
   function KpiTable({
     items,
     compact = false,
@@ -337,7 +325,7 @@ export function Workspace() {
                   </td>
                   {!compact && <td className="muted">{L(k.owner)}</td>}
                   <td className="numeric">
-                    {k.target}
+                    {k.periodicTargets?.[period] ?? k.target}
                     {k.unit === "percent" ? "%" : T(" أيام", " days")}
                   </td>
                   <td className="numeric">
@@ -777,217 +765,6 @@ export function Workspace() {
     </>
   );
 
-  const indicators = (
-    <>
-      <Heading
-        eyebrow={T("القياس والمتابعة", "MEASUREMENT & MONITORING")}
-        title={T("مؤشرات الأداء", "Performance indicators")}
-        subtitle={T(
-          "بطاقات المؤشرات ومستهدفاتها ونتائجها في مكان واحد.",
-          "Indicator definitions, targets and results in one place.",
-        )}
-        action={createButton}
-      />
-      <section className="panel">
-        <div className="list-toolbar">
-          <div className="tabs" aria-label={T("نوع المؤشر", "Indicator type")}>
-            {[
-              ["all", T("جميع المؤشرات", "All indicators")],
-              ["standalone", T("مستقلة", "Standalone")],
-              ["composite", T("مركبة", "Composite")],
-            ].map(([id, label]) => (
-              <button
-                aria-pressed={kind === id}
-                className={kind === id ? "active" : ""}
-                key={id}
-                onClick={() => setKind(id)}
-              >
-                {label}
-                <span>
-                  {id === "all"
-                    ? kpis.length
-                    : kpis.filter((k) => k.type === id).length}
-                </span>
-              </button>
-            ))}
-          </div>
-          <div className="filter-row">
-            <div className="input-with-icon">
-              <Search size={17} />
-              <input
-                aria-label={T("البحث في المؤشرات", "Search indicators")}
-                placeholder={T(
-                  "ابحث بالاسم أو الرمز…",
-                  "Search by name or code…",
-                )}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-            <select
-              aria-label={T("حالة القياس", "Measurement status")}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value="all">{T("جميع الحالات", "All statuses")}</option>
-              <option value="approved">{T("معتمد", "Approved")}</option>
-              <option value="submitted">
-                {T("بانتظار المراجعة", "In review")}
-              </option>
-              <option value="returned">
-                {T("معاد للاستكمال", "Returned")}
-              </option>
-              <option value="draft">{T("مسودة", "Draft")}</option>
-            </select>
-          </div>
-        </div>
-        <KpiTable items={filteredKpis} />
-        <div className="table-footer">
-          <span>
-            {T("عرض", "Showing")} {filteredKpis.length} {T("من", "of")}{" "}
-            {kpis.length} {T("مؤشرات", "indicators")}
-          </span>
-          <span>
-            <ShieldCheck size={14} />
-            {T(
-              "نسب التحقيق من القياسات المعتمدة فقط",
-              "Achievement uses approved measurements only",
-            )}
-          </span>
-        </div>
-      </section>
-    </>
-  );
-
-  const strategy = (
-    <>
-      <Heading
-        eyebrow={domainLabel(domain, locale)}
-        title={T("الهيكل الاستراتيجي", "Strategy structure")}
-        subtitle={T(
-          "من الأهداف إلى المؤشرات. رؤية واحدة للعلاقات والنتائج.",
-          "Connect objectives to indicators and their results.",
-        )}
-        action={createButton}
-      />
-      <div className="strategy-layout">
-        <aside className="strategy-context">
-          <span className="eyebrow">
-            {T("الاستراتيجية المؤسسية", "INSTITUTIONAL STRATEGY")}
-          </span>
-          <h2>
-            {T("نحو أداء مؤسسي مستدام", "Towards sustainable performance")}
-          </h2>
-          <p>
-            {T(
-              "تحسين الخدمات وتنمية القدرات وتعزيز كفاءة العمل المؤسسي.",
-              "Improve services, develop capabilities and advance institutional efficiency.",
-            )}
-          </p>
-          <div className="strategy-years">
-            2026 <span>—</span> 2030
-          </div>
-          <div className="strategy-facts">
-            <div>
-              <span>{T("الأهداف الاستراتيجية", "Strategic objectives")}</span>
-              <strong>03</strong>
-            </div>
-            <div>
-              <span>{T("مؤشرات الأداء", "Performance indicators")}</span>
-              <strong>{kpis.length.toString().padStart(2, "0")}</strong>
-            </div>
-          </div>
-          <div className="context-note">
-            <Info size={17} />
-            <span>
-              {T(
-                "هيكل وبيانات توضيحية لمراجعة تجربة الاستخدام.",
-                "Illustrative structure and data for usability review.",
-              )}
-            </span>
-          </div>
-        </aside>
-        <section>
-          <div className="view-toolbar">
-            <div className="segmented">
-              <button
-                className={strategyView === "strategic" ? "active" : ""}
-                onClick={() => setStrategyView("strategic")}
-              >
-                <ListTree size={16} />
-                {T("العرض الاستراتيجي", "Strategic view")}
-              </button>
-              <button
-                className={strategyView === "organizational" ? "active" : ""}
-                onClick={() => setStrategyView("organizational")}
-              >
-                <Building2 size={16} />
-                {T("العرض التنظيمي", "Organization view")}
-              </button>
-            </div>
-          </div>
-          {(strategyView === "strategic"
-            ? objectives.map((o) => ({
-                id: o.id,
-                name: o.name,
-                description: o.description,
-                items: kpis.filter((k) => k.objective === o.id),
-              }))
-            : [...new Set(kpis.map((k) => k.sector.ar))].map((sector) => ({
-                id: sector,
-                name: kpis.find((k) => k.sector.ar === sector)!.sector,
-                description: {
-                  ar: "المؤشرات المرتبطة بالوحدة التنظيمية",
-                  en: "Indicators linked to this organizational unit",
-                },
-                items: kpis.filter((k) => k.sector.ar === sector),
-              }))
-          ).map((o, index) => (
-            <details className="objective-card" key={o.id} open>
-              <summary>
-                <span className="objective-index">
-                  {(index + 1).toString().padStart(2, "0")}
-                </span>
-                <div>
-                  <h3>{L(o.name)}</h3>
-                  <p>{L(o.description)}</p>
-                </div>
-                <span className="count-pill">{o.items.length}</span>
-                <ChevronDown size={17} />
-              </summary>
-              <div className="objective-children">
-                {o.items.map((k) => (
-                  <Link
-                    href={`/indicators/${k.id}`}
-                    className="tree-item"
-                    key={k.id}
-                  >
-                    <span className="tree-connector" />
-                    <ChartNoAxesCombined size={17} />
-                    <div>
-                      <strong>{L(k.name)}</strong>
-                      <small>{k.code}</small>
-                    </div>
-                    <Score value={scoreFor(k, period, store)} locale={locale} />
-                    <DirectionArrow locale={locale} />
-                  </Link>
-                ))}
-                {!o.items.length && (
-                  <p className="muted tree-empty">
-                    {T(
-                      "لا توجد مؤشرات مرتبطة بهذا الهدف بعد.",
-                      "No indicators are linked to this objective yet.",
-                    )}
-                  </p>
-                )}
-              </div>
-            </details>
-          ))}
-        </section>
-      </div>
-    </>
-  );
-
   const measurementPage = (
     <>
       <Heading
@@ -1044,7 +821,7 @@ export function Workspace() {
                 <div>
                   <span>{T("المستهدف", "Target")}</span>
                   <strong>
-                    {k.target}
+                    {k.periodicTargets?.[period] ?? k.target}
                     <small>
                       {k.unit === "percent" ? "%" : T(" يوم", " days")}
                     </small>
@@ -1236,12 +1013,17 @@ export function Workspace() {
           <div>
             <span>{T("المستهدف", "Target")}</span>
             <strong>
-              {kpi.target}
+              {kpi.periodicTargets?.[period] ?? kpi.target}
               {kpi.unit === "percent" ? "%" : T(" أيام", " days")}
             </strong>
           </div>
           <div>
-            <span>{T("خط الأساس · 2025", "Baseline · 2025")}</span>
+            <span>
+              {T(
+                `خط الأساس · ${kpi.baselineYear ?? 2025}`,
+                `Baseline · ${kpi.baselineYear ?? 2025}`,
+              )}
+            </span>
             <strong>
               {kpi.baseline}
               {kpi.unit === "percent" ? "%" : ""}
@@ -1296,7 +1078,23 @@ export function Workspace() {
                     L(kpi.ambassador),
                   ],
                   [T("القطاع", "Sector"), L(kpi.sector)],
-                  [T("دورية القياس", "Frequency"), T("ربع سنوية", "Quarterly")],
+                  [
+                    T("دورية القياس", "Frequency"),
+                    frequencyNames[kpi.frequency ?? "quarterly"][locale],
+                  ],
+                  [T("المستوى", "Level"), levelNames[kpiLevel(kpi)][locale]],
+                  [
+                    T("الوحدة التنظيمية", "Organizational unit"),
+                    L(kpiUnit(kpi)),
+                  ],
+                  [
+                    T("تصنيف المؤشر", "Classification"),
+                    kpi.classification || "—",
+                  ],
+                  [
+                    T("تاريخ السريان", "Effective date"),
+                    kpi.effectiveDate || "2026-01-01",
+                  ],
                   [
                     T("اتجاه المؤشر", "Direction"),
                     kpi.direction === "positive"
@@ -1348,7 +1146,11 @@ export function Workspace() {
                       href={`/indicators/${child.id}`}
                     >
                       <span>{L(linked.name)}</span>
-                      <strong>{child.weight}%</strong>
+                      <strong>
+                        {kpi.aggregation === "mean"
+                          ? T("وزن متساوٍ", "Equal weight")
+                          : `${child.weight}%`}
+                      </strong>
                     </Link>
                   )
                 );
@@ -1475,28 +1277,32 @@ export function Workspace() {
           </div>
           <span className="badge status-draft">M1</span>
         </div>
-        <div className="setting-row">
-          <div>
-            <h3>{T("معاينة الأدوار", "Role preview")}</h3>
-            <p>
-              {T(
-                "اختر دورًا لتجربة اختلاف الإجراءات المتاحة. هذا التبديل مخصص للتصميم وليس وسيلة للتحقق من الصلاحيات.",
-                "Preview the actions available to each role. This switch is a design tool, not authorization.",
-              )}
-            </p>
+        {role === "performance" && (
+          <div className="setting-row">
+            <div>
+              <h3>{T("معاينة الأدوار", "Role preview")}</h3>
+              <p>
+                {T(
+                  "اختر دورًا لتجربة اختلاف الإجراءات المتاحة. هذا التبديل مخصص للتصميم وليس وسيلة للتحقق من الصلاحيات.",
+                  "Preview the actions available to each role. This switch is a design tool, not authorization.",
+                )}
+              </p>
+            </div>
+            <select
+              value={role}
+              onChange={(e) => {
+                setRole(e.target.value as Role);
+              }}
+              aria-label={T("اختيار دور المعاينة", "Choose preview role")}
+            >
+              {Object.entries(roles).map(([id, name]) => (
+                <option key={id} value={id}>
+                  {L(name)}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as Role)}
-            aria-label={T("اختيار دور المعاينة", "Choose preview role")}
-          >
-            {Object.entries(roles).map(([id, name]) => (
-              <option key={id} value={id}>
-                {L(name)}
-              </option>
-            ))}
-          </select>
-        </div>
+        )}
         <div className="setting-row">
           <div>
             <h3>{T("اللغة", "Language")}</h3>
@@ -1570,18 +1376,17 @@ export function Workspace() {
             </span>
           </div>
         </Link>
-        <div className="sidebar-label">{T("مساحة العمل", "WORKSPACE")}</div>
         <nav aria-label={T("القائمة الرئيسية", "Main navigation")}>
           {navigation.map((n) => (
             <Link
               key={n.id}
               href={`/${n.id}`}
-              className={`nav-item ${section === n.id ? "active" : ""}`}
-              aria-current={section === n.id ? "page" : undefined}
+              className={`nav-item ${activeSection === n.id ? "active" : ""}`}
+              aria-current={activeSection === n.id ? "page" : undefined}
             >
               <n.icon size={19} strokeWidth={1.6} />
               <span>{n[locale]}</span>
-              {n.id === "approvals" && pending.length > 0 && (
+              {n.id === "tasks" && pending.length > 0 && (
                 <b>{pending.length}</b>
               )}
             </Link>
@@ -1684,18 +1489,28 @@ export function Workspace() {
                 )}
               </span>
               <div>
-                <small>{T("معاينة الدور", "PREVIEW ROLE")}</small>
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as Role)}
-                  aria-label={T("معاينة الدور", "Preview role")}
-                >
-                  {Object.entries(roles).map(([id, name]) => (
-                    <option key={id} value={id}>
-                      {L(name)}
-                    </option>
-                  ))}
-                </select>
+                <small>
+                  {role === "performance"
+                    ? T("معاينة الدور", "PREVIEW ROLE")
+                    : T("الدور الحالي", "CURRENT ROLE")}
+                </small>
+                {role === "performance" ? (
+                  <select
+                    value={role}
+                    onChange={(e) => {
+                      setRole(e.target.value as Role);
+                    }}
+                    aria-label={T("معاينة الدور", "Preview role")}
+                  >
+                    {Object.entries(roles).map(([id, name]) => (
+                      <option key={id} value={id}>
+                        {L(name)}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <strong>{L(roles[role])}</strong>
+                )}
               </div>
             </div>
           </div>
@@ -1744,6 +1559,24 @@ export function Workspace() {
           </span>
         </div>
         <main id="main-content" className="main-content" tabIndex={-1}>
+          {role !== "performance" && (
+            <div className="inline-notice no-print">
+              <span>
+                {T(
+                  "أنت تعاين واجهة دور آخر من حساب فريق الأداء.",
+                  "You are previewing another role from the performance team account.",
+                )}
+              </span>
+              <button
+                className="text-link"
+                onClick={() => {
+                  setRole("performance");
+                }}
+              >
+                {T("إنهاء المعاينة", "End preview")}
+              </button>
+            </div>
+          )}
           {storageError && (
             <div role="alert" className="inline-notice warning">
               {T(
@@ -1754,7 +1587,7 @@ export function Workspace() {
           )}
           {!ready ? (
             <div className="loading-state" aria-live="polite">
-              {T("جارٍ تجهيز مساحة العمل…", "Preparing your workspace…")}
+              {T("جارٍ تجهيز الصفحة…", "Preparing your page…")}
             </div>
           ) : detailId ? (
             selected ? (
@@ -1775,13 +1608,22 @@ export function Workspace() {
           ) : section === "overview" ? (
             overview
           ) : section === "strategy" ? (
-            strategy
+            <PerformanceExplorer key={`structure-${domain}`} />
           ) : section === "indicators" ? (
-            indicators
-          ) : section === "measurements" ? (
-            measurementPage
-          ) : section === "approvals" ? (
-            approvals
+            <PerformanceExplorer
+              key={`tracking-${domain}`}
+              initialTab="tracking"
+            />
+          ) : ["tasks", "measurements", "approvals"].includes(section) ? (
+            <TaskCenter
+              key={`${section}-${domain}`}
+              initialTab={section === "approvals" ? "approvals" : "measurement"}
+              measurement={measurementPage}
+              approvals={approvals}
+              create={createButton}
+            />
+          ) : section === "reports" ? (
+            <ReportsPage key={domain} />
           ) : (
             settings
           )}

@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  filterIndicators,
+  emptyFilters,
+  indicatorsCsv,
+} from "../src/lib/performance.ts";
+import {
   achievement,
   scoreFor,
   transition,
@@ -47,6 +52,97 @@ function fixture(): Store {
     events: [],
   };
 }
+
+test("period targets change approved achievement and fall back to the main target", () => {
+  const s = fixture();
+  const planned = { ...kpi, periodicTargets: { "2026-Q3": 90 } };
+  assert.equal(scoreFor(planned, "2026-Q3", s), 80);
+  assert.equal(scoreFor(kpi, "2026-Q3", s), 90);
+  assert.equal(
+    isStore({
+      ...s,
+      kpis: [{ ...planned, periodicTargets: { "2026-Q3": 0 } }],
+    }),
+    false,
+  );
+});
+
+test("composite without selected weights averages child achievements", () => {
+  const s = fixture();
+  s.kpis.push({ ...kpi, id: "b", target: 72 });
+  s.measurements.push({
+    ...measurement,
+    id: "mb",
+    kpiId: "b",
+    status: "approved",
+  });
+  const c: KPI = {
+    ...kpi,
+    id: "c",
+    type: "composite",
+    aggregation: "mean",
+    children: [
+      { id: "a", weight: 20 },
+      { id: "b", weight: 80 },
+    ],
+  };
+  assert.equal(scoreFor(c, "2026-Q3", s), 95);
+  s.measurements[1].status = "draft";
+  assert.equal(scoreFor(c, "2026-Q3", s), null);
+});
+
+test("combined filters distinguish strategic level from composition and unapproved results", () => {
+  const s = fixture();
+  s.kpis[0] = { ...kpi, level: "strategic", frequency: "semiannual" };
+  s.kpis.push({ ...kpi, id: "b", level: "operational" });
+  assert.equal(
+    filterIndicators(
+      s.kpis,
+      {
+        ...emptyFilters,
+        level: "strategic",
+        frequency: "semiannual",
+        status: "watch",
+      },
+      "2026-Q3",
+      s,
+    ).length,
+    1,
+  );
+  assert.equal(
+    filterIndicators(
+      s.kpis,
+      { ...emptyFilters, level: "operational", status: "neutral" },
+      "2026-Q3",
+      s,
+    )[0].id,
+    "b",
+  );
+  assert.equal(
+    filterIndicators(
+      s.kpis,
+      { ...emptyFilters, owner: "unknown" },
+      "2026-Q3",
+      s,
+    ).length,
+    0,
+  );
+});
+
+test("exports escape formulas and omit unapproved achievement", () => {
+  const s = fixture();
+  s.measurements[0].status = "draft";
+  const csv = indicatorsCsv(
+    [{ ...kpi, name: { ar: "=SUM(1,2)", en: "test" } }],
+    s,
+    "2026-Q3",
+    "ar",
+  );
+  assert.ok(csv.includes('"\'=SUM(1,2)"'));
+  assert.ok(csv.endsWith('""'));
+  assert.equal(isStore({ ...s, requests: [{ id: "x" }] }), false);
+  assert.equal(isStore(s), true);
+});
 
 test("positive and negative direction use the correct numerator", () => {
   assert.equal(achievement(72, 80, "positive"), 90);
